@@ -1,0 +1,322 @@
+﻿#!/usr/bin/perl
+
+package arcfind;
+
+=head1 NAME
+
+arcfind - The archival file finder.
+
+=cut
+
+use strict;
+use Cwd;
+use Getopt::Long;
+use File::Basename;
+use File::Spec;
+use Pod::Usage;
+
+require Exporter;
+our @ISA = ("Exporter");
+our @EXPORT = qw(&arcfind);
+
+my $VERSION = 1.1;
+
+my $dir;			# The directory we are using
+my $minFiles;		# The minumum number of files to return.
+my $maxAge;			# The maximum age of the files to return.
+my %fileAges;		# A hash that will contain the file ages.
+my @returnFiles;	# The files we are returning.
+my $shortNames;		# Whether we want short names.
+my $longNames;		# Whether we want long names.
+my $inverse;
+my $sorted;			# Whether we want the files in sorted order.
+my $help;			# If we want to print a help file instead of working.
+
+=head1 SYNOPSIS
+
+Usage: arcfind [opts] [dir]
+
+Options:
+    
+    --directory $DIR        The directory to work in.
+    
+    --files $MINFILES       The minimum number of files to leave behind.
+    --minfiles $MINFILES
+    
+    --age $MAXAGE           The max age of the files to leave behind.
+    --maxage $MAXAGE
+    
+    --longnames             Output full pathnames always.
+    
+    --shortnames            Output only the filename.
+                            (No path component.)
+    
+    --inverse               Give the inverse output.
+    --head
+    
+    --sort                  Give the output sorted by file age.
+    
+    --help                  Print a help message.
+    --?
+    
+All options can be shortened to the shortest unique string.
+
+=cut
+
+# Get command-line options.
+$maxAge = 7;
+$minFiles = 100;
+GetOptions ("directory|d:s"			=> \$dir,		# The directory to work with.
+			"files|minfiles:100"	=> \$minFiles,	# The minumum number of files.
+			"age|maxage:7"			=> \$maxAge,	# The max age of the files.
+			"longnames!"			=> \$longNames,	# Whether we want long names.
+			"shortnames!"			=> \$shortNames,	# Whether we want short names.
+			"inverse|head"			=> \$inverse,		# If we want the inverse listing.
+			"help|?|h"				=> \$help,
+			"sort!"					=> \$sorted,	# Whether we want the output sorted.
+);
+pod2usage(1) if $help;
+
+=head1 DESCRIPTION
+
+Arcfind is a program designed to help writing archive
+scripts.  Given a directory $DIR, a max age of the files to
+keep $MAXAGE, and the minimum number of files to keep
+$MINFILES it returns a list of all the files in $DIR older
+than $MAXAGE, excluding at least $MINFILES.  Files will not
+be listed if they are younger than $MAXAGE or if listing
+them would leave less than $MINFILES in the unlisted files.
+
+This program will I<always> exclude at least $MINFILES, but
+I<may> exclude more, if there are a lot of files younger
+than $MAXAGE.
+
+=head2 OPTIONS
+
+B<--directory> $DIR
+
+Sets the directory to list files from.  This will be
+read from the command line if the option is omitted, or
+will be set to the current working directory if not
+given.
+
+B<--files> $MINFILES,
+B<--minfiles> $MINFILES
+
+Sets the minimum number of files to I<not> list.  The
+default is 100. Setting this option without listing a
+number will set the default. Setting this to 0 gives
+the same output as:
+	C<find $DIR -mtime +MAXAGE -print>
+
+B<--age> $MAXAGE,
+B<--maxage> $MAXAGE
+
+Sets the maximum age of files to I<not> list (in days).
+The default is 7 days. Setting this option without
+listing a number will set the default. Setting this to
+0 gives the same output as:
+	C<ls -t $DIR | tail +$MINFILES>
+
+B<--longnames>
+
+Always use the full pathname to the files listed.  The
+default is to use the full pathname if $DIR is not the
+current working directory, and the base filename if we
+are listing files in the current directory.  This
+option overrides that so that even files in the current
+directory have the directory appended.  This option can
+be unset with B<--nolongnames>, which just sets the
+default action, and is overridden by B<--shortnames>.
+
+Note that B<--nolongnames> and B<--shortnames> are not
+quite opposites: The first will list full pathnames
+outside of the current directory while the second
+won't. See B<--shortnames>.
+
+B<--shortnames>
+
+Always use just the basename when listing files.  The
+default is to list the full pathname if we are not
+listing the current directory.  With this option set
+the program will list only the filename, ignoring the
+directory component.  This option can be unset with
+B<--noshortnames>, which resets the default action.
+
+Note that B<--noshortnames> and B<--longnames> are not
+quite opposites: The first will list 'shortnames' in
+the current directory while the second won't.  See
+B<--longnames>.
+
+B<--inverse>
+
+Invert the output: list every file that would I<not> be
+listed in the normal output.  This means that all files
+younger than $MAXAGE will be listed, with a minimum of
+$MINFILES in the listing.  (Some of which could be older
+than $MAXAGE.)
+
+B<--sort>
+
+Sort the output: Files will be listed oldest to newest.
+Note that output I<may> be sorted without this option,
+but it is not I<required> to be.  If you want to rely
+on the sorting behavior, set this to be sure.
+
+=cut
+
+# Check to see: The directory could be alone on the command line
+# (or it could be after the arguments end.)
+if ( @ARGV )
+{
+	my $nextArg = shift @ARGV;
+	if ( $nextArg eq "-" )
+	{
+		$nextArg = shift @ARGV;
+	}
+	$dir = $nextArg;
+}
+
+# If we don't know what the directory is by now, it is the current dir.
+if ( !defined($dir) || $dir eq "" )
+{
+	$dir = cwd;
+}
+
+# Actually sort and find the files.
+@returnFiles = arcfind($dir, $minFiles, $maxAge, $inverse);
+
+# Return the file list.
+if ( @returnFiles )
+{
+
+	#Note: If the array would ever not be sorted, we should check to see if it should be
+	#      here, and sort if yes.  Currently, it is always sorted.
+	
+	
+	if ( $shortNames or ( !$longNames and (cwd eq dirname($returnFiles[0])) )  )
+	{
+		foreach (@returnFiles)
+		{
+			print basename($_) ."\n";
+		}
+	} else
+	{
+		foreach (@returnFiles)
+		{
+			print File::Spec->canonpath($_) ."\n";
+		}
+	}
+}
+
+# arcfind
+#
+# The main subroutine.  Opens the dir, reads the files, sorts them,
+# then selects the which ones we actually want.
+#
+# Parameters:
+# $dir:  The directory we want the files from.
+# $minFiles:  The minimum number of files to leave.
+# $maxAge:  The maximum age of the files to leave.
+# $inverse:  (Boolean) Set if you want inverse output.
+sub arcfind {
+	# Set up our local variables
+	my ($directory, $minFiles, $maxAge, $inverse) = @_;
+
+	# Get the files in the directory.
+	my @allFiles = <$directory/*>;
+	
+	# Put the file ages into a hash, so we can use them.
+	my %fileAges;
+	foreach (@allFiles)
+	{
+		$fileAges{$_} = -M $_;
+	}
+	
+	if ( @allFiles > $minFiles )
+	{
+		@allFiles = sort { $fileAges{$b} <=> $fileAges{$a} } @allFiles;
+		
+		for ( my $i = 0; $i < @allFiles; $i++ )
+		{
+			if 	(  ($fileAges{$allFiles[$i]} >= $maxAge) and 
+					($i < (@allFiles - $minFiles)) 
+					)
+			{
+				push @returnFiles, $allFiles[$i];
+			}
+			else {
+				last;
+			}
+		}
+	} else
+	{
+		# If there are less files than we want left, return none.
+		@returnFiles = ();
+	}
+	
+	# If they happen to want the inverse listing, give it.
+	if ( $inverse )
+	{
+		if (@returnFiles)
+		{	
+			@returnFiles = @allFiles[scalar(@returnFiles) .. (scalar(@allFiles) -1 )];
+		} else
+		{	
+			# We could probably skip this sort, and only sort if they ask for it,
+			# but I'd either have to do one of the following: 
+			# 1. Break encapsulation
+			# 2. Sort the returned list twice for *most* cases.
+			# 3. Pass another parameter, just to check here.
+			# Number 3 is possible, but at the moment I'll leave as is.
+			@returnFiles = sort { $fileAges{$b} <=> $fileAges{$a} } @allFiles;
+		}
+	}
+	
+	return @returnFiles;
+}
+
+=head1 USAGE NOTES
+
+Example useage:
+
+C<mv `arcfind` ../archive/>
+
+Move all files older than one week from the current
+folder to a folder named archive, leaving at least 100
+files in the current folder.
+
+C<arcfind -f 10 -a 5 -d /etc -i>
+
+List the ten most recently modified configuration
+files, or all configuration files that have been
+modified in the last five days.
+
+=head1 REQUIREMENTS
+
+Perl.  Preferably version 5.6.0 or greater.
+
+Uses the following Perl modules, some of which are installed by default:
+Cwd, Getopt::Long, File::Basename, File::Spec, Pod::Usage.
+
+=head1 BUGS
+
+None known.  Infinite unknown.
+
+=head1 AUTHOR
+
+Version 1.1 written by Daniel T. Staal.  Comments, bug reports, love letters,
+etc. should be sent to: DStaal@usa.net
+
+=head1 COPYRIGHT
+
+Copyright 2008, Daniel T. Staal.  All Rights Reserved.
+
+This is free software.  You may copy or redistribute it under the same terms
+as Perl itself.
+
+This copyright will expire 5 years after the author's death, or in 30 years,
+whichever is longer, unless such a period is in excess of local copyright law.
+After that this program is considered to be in the public domain.
+
+=cut
