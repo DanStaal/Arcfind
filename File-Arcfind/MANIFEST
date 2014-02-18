@@ -1,0 +1,8 @@
+MANIFEST
+README
+LICENSE
+Todo
+Build.PL
+Makefile.PL
+lib/File/Arcfind.pm
+t/001_load.t
