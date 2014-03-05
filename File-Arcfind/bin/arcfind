@@ -14,22 +14,18 @@ use File::Spec;
 use Pod::Usage;
 use File::Arcfind;
 
-require Exporter;
-our @ISA = ("Exporter");
-our @EXPORT = qw(&arcfind);
-
 my $VERSION = 1.1;
 
-my $dir;			# The directory we are using
-my $minFiles;		# The minumum number of files to return.
-my $maxAge;			# The maximum age of the files to return.
-my %fileAges;		# A hash that will contain the file ages.
-my @returnFiles;	# The files we are returning.
-my $shortNames;		# Whether we want short names.
-my $longNames;		# Whether we want long names.
+my $dir;            # The directory we are using
+my $minFiles;       # The minumum number of files to return.
+my $maxAge;         # The maximum age of the files to return.
+my %fileAges;       # A hash that will contain the file ages.
+my @returnFiles;    # The files we are returning.
+my $shortNames;     # Whether we want short names.
+my $longNames;      # Whether we want long names.
 my $inverse;
-my $sorted;			# Whether we want the files in sorted order.
-my $help;			# If we want to print a help file instead of working.
+my $sorted;         # Whether we want the files in sorted order.
+my $help;           # If we want to print a help file instead of working.
 
 =head1 SYNOPSIS
 
@@ -63,17 +59,18 @@ All options can be shortened to the shortest unique string.
 =cut
 
 # Get command-line options.
-$maxAge = 7;
+$maxAge   = 7;
 $minFiles = 100;
-GetOptions ("directory|d:s"			=> \$dir,		# The directory to work with.
-			"files|minfiles:100"	=> \$minFiles,	# The minumum number of files.
-			"age|maxage:7"			=> \$maxAge,	# The max age of the files.
-			"longnames!"			=> \$longNames,	# Whether we want long names.
-			"shortnames!"			=> \$shortNames,	# Whether we want short names.
-			"inverse|head"			=> \$inverse,		# If we want the inverse listing.
-			"help|?|h"				=> \$help,
-			"sort!"					=> \$sorted,	# Whether we want the output sorted.
-);
+GetOptions(
+    "directory|d:s"      => \$dir,          # The directory to work with.
+    "files|minfiles:100" => \$minFiles,     # The minumum number of files.
+    "age|maxage:7"       => \$maxAge,       # The max age of the files.
+    "longnames!"         => \$longNames,    # Whether we want long names.
+    "shortnames!"        => \$shortNames,   # Whether we want short names.
+    "inverse|head"       => \$inverse,      # If we want the inverse listing.
+    "help|?|h"           => \$help,
+    "sort!"              => \$sorted,       # Whether we want the output sorted.
+          );
 pod2usage(1) if $help;
 
 =head1 DESCRIPTION
@@ -166,47 +163,41 @@ on the sorting behavior, set this to be sure.
 
 # Check to see: The directory could be alone on the command line
 # (or it could be after the arguments end.)
-if ( @ARGV )
-{
-	my $nextArg = shift @ARGV;
-	if ( $nextArg eq "-" )
-	{
-		$nextArg = shift @ARGV;
-	}
-	$dir = $nextArg;
-}
+if (@ARGV) {
+    my $nextArg = shift @ARGV;
+    if ( $nextArg eq "-" ) {
+        $nextArg = shift @ARGV;
+    }
+    $dir = $nextArg;
+} ## end if (@ARGV)
 
 # If we don't know what the directory is by now, it is the current dir.
-if ( !defined($dir) || $dir eq "" )
-{
-	$dir = cwd;
+if ( !defined($dir) || $dir eq "" ) {
+    $dir = cwd;
 }
 
 # Actually sort and find the files.
-@returnFiles = arcfind($dir, $minFiles, $maxAge, $inverse);
+@returnFiles = arcfind( $dir, $minFiles, $maxAge, $inverse );
 
 # Return the file list.
-if ( @returnFiles )
-{
+if (@returnFiles) {
 
-	#Note: If the array would ever not be sorted, we should check to see if it should be
-	#      here, and sort if yes.  Currently, it is always sorted.
+#Note: If the array would ever not be sorted, we should check to see if it should be
+#      here, and sort if yes.  Currently, it is always sorted.
 
-
-	if ( $shortNames or ( !$longNames and (cwd eq dirname($returnFiles[0])) )  )
-	{
-		foreach (@returnFiles)
-		{
-			print basename($_) ."\n";
-		}
-	} else
-	{
-		foreach (@returnFiles)
-		{
-			print File::Spec->canonpath($_) ."\n";
-		}
-	}
-}
+    if ( $shortNames
+         or ( !$longNames and ( cwd eq dirname( $returnFiles[0] ) ) ) )
+    {
+        foreach (@returnFiles) {
+            print basename($_) . "\n";
+        }
+    } ## end if ( $shortNames or ( ...))
+    else {
+        foreach (@returnFiles) {
+            print File::Spec->canonpath($_) . "\n";
+        }
+    } ## end else [ if ( $shortNames or ( ...))]
+} ## end if (@returnFiles)
 
 =head1 USAGE NOTES
 

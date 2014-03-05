@@ -4,4 +4,4 @@ my @allFiles = <t/testdir/*>;
 
 unlink @allFiles;
 
-ok( rmdir('t/testdir'), 'Deleting testing directory');
+ok( rmdir('t/testdir'), 'Deleting testing directory' );
