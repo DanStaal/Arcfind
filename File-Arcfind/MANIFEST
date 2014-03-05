@@ -5,4 +5,5 @@ Todo
 Build.PL
 Makefile.PL
 lib/File/Arcfind.pm
+bin/arcfind
 t/001_load.t
