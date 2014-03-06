@@ -1,0 +1,50 @@
+{
+   "abstract" : "Find files to archive.",
+   "author" : [
+      "Daniel Staal - <DStaal@usa.net>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Module::Build version 0.4205",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "File-Arcfind",
+   "prereqs" : {
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.42"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Cwd" : "0",
+            "File::Basename" : "0",
+            "File::Spec" : "0",
+            "Getopt::Long" : "0",
+            "Pod::Usage" : "0"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Test::Script" : "1"
+         }
+      }
+   },
+   "provides" : {
+      "File::Arcfind" : {
+         "file" : "lib/File/Arcfind.pm",
+         "version" : "1.20"
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ]
+   },
+   "version" : "1.20"
+}

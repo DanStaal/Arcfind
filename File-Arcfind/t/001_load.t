@@ -24,5 +24,5 @@ for ( my $i = 0 ; $i < 250 ; $i++ ) {
     my $fh;
     open( $fh, '>', "t/testdir/test$i" );
     utime $timeset, $timeset, "t/testdir/test$i";
-    $timeset = $timeset - 86400;
+    $timeset = $timeset - (86400/2);
 } ## end for ( my $i = 0 ; $i < ...)

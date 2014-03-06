@@ -10,7 +10,6 @@ Module::Build->new(
                     dist_version_from  => 'lib/File/Arcfind.pm',
                     create_readme      => 1,
                     dynamic_config     => 0,
-                    create_makefile_pl => 'passthrough',
                     script_files       => [qw(bin/arcfind)],
                     requires           => {
                                   Cwd            => 0,
@@ -19,4 +18,8 @@ Module::Build->new(
                                   Getopt::Long   => 0,
                                   Pod::Usage     => 0,
                                 },
+                    test_requires => {
+                                        'Test::Script' => 1,
+                                      },
+                    configure_requires => { 'Module::Build' => 0.42 },
                   )->create_build_script;

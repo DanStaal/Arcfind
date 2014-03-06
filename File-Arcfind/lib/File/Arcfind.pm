@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/perl
 
-package arcfind;
+package File::Arcfind;
 
 =head1 NAME
 
@@ -10,22 +10,22 @@ arcfind - The archival file finder.
 
 use strict;
 
-require Exporter;
-our @ISA = ("Exporter");
-our @EXPORT = qw(&arcfind);
+use Exporter qw( import );
+our @EXPORT = qw(arcfind);
 
 my $VERSION = "1.20";
 
-# arcfind
-#
-# The main subroutine.  Opens the dir, reads the files, sorts them,
-# then selects the which ones we actually want.
-#
-# Parameters:
-# $dir:  The directory we want the files from.
-# $minFiles:  The minimum number of files to leave.
-# $maxAge:  The maximum age of the files to leave.
-# $inverse:  (Boolean) Set if you want inverse output.
+=head2 arcfind
+
+The main subroutine.  Opens the dir, reads the files, sorts them,
+then selects the which ones we actually want.
+
+Parameters:
+$dir:  The directory we want the files from.
+$minFiles:  The minimum number of files to leave.
+$maxAge:  The maximum age of the files to leave.
+$inverse:  (Boolean) Set if you want inverse output.
+=cut
 sub arcfind {
 	# Set up our local variables
 	my ($directory, $minFiles, $maxAge, $inverse) = @_;

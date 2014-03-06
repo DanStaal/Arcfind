@@ -7,3 +7,6 @@ Makefile.PL
 lib/File/Arcfind.pm
 bin/arcfind
 t/001_load.t
+t/9999_cleanup.t
+META.yml
+META.json

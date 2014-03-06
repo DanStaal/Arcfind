@@ -1,0 +1,28 @@
+---
+abstract: 'Find files to archive.'
+author:
+  - 'Daniel Staal - <DStaal@usa.net>'
+build_requires:
+  Test::Script: '1'
+configure_requires:
+  Module::Build: '0.42'
+dynamic_config: 0
+generated_by: 'Module::Build version 0.4205, CPAN::Meta::Converter version 2.133380'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: File-Arcfind
+provides:
+  File::Arcfind:
+    file: lib/File/Arcfind.pm
+    version: '1.20'
+requires:
+  Cwd: '0'
+  File::Basename: '0'
+  File::Spec: '0'
+  Getopt::Long: '0'
+  Pod::Usage: '0'
+resources:
+  license: http://dev.perl.org/licenses/
+version: '1.20'
