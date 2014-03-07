@@ -1,4 +1,4 @@
-﻿#!/usr/bin/perl
+#!/usr/bin/env perl
 
 =head1 NAME
 
@@ -14,7 +14,7 @@ use File::Spec;
 use Pod::Usage;
 use File::Arcfind;
 
-my $VERSION = 1.1;
+my $VERSION = 1.20;
 
 my $dir;            # The directory we are using
 my $minFiles;       # The minumum number of files to return.
@@ -126,7 +126,7 @@ be unset with B<--nolongnames>, which just sets the
 default action, and is overridden by B<--shortnames>.
 
 Note that B<--nolongnames> and B<--shortnames> are not
-quite opposites: The first will list full pathnames
+quite opposites: The first will list relative pathnames
 outside of the current directory while the second
 won't. See B<--shortnames>.
 
@@ -193,9 +193,16 @@ if (@returnFiles) {
         }
     } ## end if ( $shortNames or ( ...))
     else {
-        foreach (@returnFiles) {
-            print File::Spec->canonpath($_) . "\n";
-        }
+        if ($longNames) {
+            foreach (@returnFiles) {
+                print File::Spec->rel2abs( File::Spec->canonpath($_) ) . "\n";
+            }
+        } ## end if ($longNames)
+        else {
+            foreach (@returnFiles) {
+                print File::Spec->canonpath($_) . "\n";
+            }
+        } ## end else [ if ($longNames) ]
     } ## end else [ if ( $shortNames or ( ...))]
 } ## end if (@returnFiles)
 
