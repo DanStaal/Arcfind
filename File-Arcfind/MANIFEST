@@ -10,6 +10,7 @@ README
 t/001_load.t
 t/002_main_tests.t
 t/003_script.t
+t/004_Extended.t
 t/9999_cleanup.t
 t/999_POD.t
 t/kwalitee.t

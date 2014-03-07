@@ -3,6 +3,8 @@ abstract: 'Find files to archive.'
 author:
   - 'Daniel Staal - <DStaal@usa.net>'
 build_requires:
+  Test::Deep: '0'
+  Test::More: '0'
   Test::Script: '1'
 configure_requires:
   Module::Build: '0.42'
