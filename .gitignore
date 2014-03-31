@@ -9,4 +9,8 @@
 
 /File-Arcfind/t/testdir
 
+/File-Arcfind/cover_db
+/File-Arcfind/blib
+
+
 *.bak
