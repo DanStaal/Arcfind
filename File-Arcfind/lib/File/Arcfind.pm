@@ -25,7 +25,9 @@ $dir:  The directory we want the files from.
 $minFiles:  The minimum number of files to leave.
 $maxAge:  The maximum age of the files to leave.
 $inverse:  (Boolean) Set if you want inverse output.
+
 =cut
+
 sub arcfind {
 	# Set up our local variables
 	my ($directory, $minFiles, $maxAge, $inverse) = @_;
